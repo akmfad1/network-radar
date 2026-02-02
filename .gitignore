@@ -9,9 +9,9 @@ venv/
 .venv/
 
 # Database
-data.db
-*.db
-*.sqlite3
+#data.db
+#*.db
+#*.sqlite3
 
 # Logs
 *.log

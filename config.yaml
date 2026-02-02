@@ -29,12 +29,14 @@ targets:
     host: "8.8.8.8"
     type: "ping"
     category: "DNS"
+    icon: "google.png"
     description: "سرور DNS گوگل"
 
   - name: "Cloudflare DNS"
     host: "1.1.1.1"
     type: "ping"
     category: "DNS"
+    icon: "cloudflare.png"
     description: "سرور DNS کلودفلر"
 
   - name: "Shecan DNS"
@@ -54,12 +56,14 @@ targets:
     host: "https://www.google.com"
     type: "http"
     category: "Web"
+    icon: "google.png"
     description: "موتور جستجوی گوگل"
 
   - name: "Cloudflare"
     host: "https://www.cloudflare.com"
     type: "http"
     category: "CDN"
+    icon: "cloudflare.png"
     description: "سرویس CDN کلودفلر"
 
   # Development Services
@@ -67,24 +71,28 @@ targets:
     host: "https://github.com"
     type: "http"
     category: "Development"
+    icon: "github.png"
     description: "پلتفرم مدیریت کد"
 
-  - name: "GitLab"
-    host: "https://gitlab.com"
+  - name: "Docker"
+    host: "https://hub.docker.com"
     type: "http"
     category: "Development"
-    description: "پلتفرم GitLab"
+    icon: "docker.png"
+    description: "پلتفرم Docker"
 
-  - name: "NPM Registry"
+  - name: "NPM"
     host: "https://registry.npmjs.org"
     type: "http"
     category: "Development"
+    icon: "npm.png"
     description: "مخزن پکیج‌های NPM"
 
   - name: "PyPI"
     host: "https://pypi.org"
     type: "http"
     category: "Development"
+    icon: "pypi.png"
     description: "مخزن پکیج‌های پایتون"
 
   - name: "Docker Hub"
@@ -94,16 +102,18 @@ targets:
     description: "مخزن ایمیج‌های داکر"
 
   # Cloud Providers
-  - name: "AWS"
-    host: "https://aws.amazon.com"
+  - name: "Digikala"
+    host: "https://www.digikala.com"
     type: "http"
     category: "Cloud"
+    icon: "digikala.png"
     description: "سرویس ابری آمازون"
 
   - name: "Azure"
     host: "https://azure.microsoft.com"
     type: "http"
     category: "Cloud"
+    icon: "azure.ico"
     description: "سرویس ابری مایکروسافت"
 
   - name: "DigitalOcean"
@@ -121,17 +131,19 @@ targets:
     description: "پورت TCP سرور DNS گوگل"
 
   # Social Media
-  - name: "Twitter/X"
-    host: "https://x.com"
+  - name: "Telegram"
+    host: "https://t.me"
     type: "http"
     category: "Social"
-    description: "شبکه اجتماعی توییتر"
+    icon: "telegram.png"
+    description: "شبکه اجتماعی تلگرام"
 
-  - name: "LinkedIn"
-    host: "https://www.linkedin.com"
+  - name: "YouTube"
+    host: "https://www.youtube.com"
     type: "http"
     category: "Social"
-    description: "شبکه اجتماعی لینکدین"
+    icon: "youtube.png"
+    description: "شبکه اجتماعی یوتوب"
 
 # نکات:
 # type می‌تواند یکی از این مقادیر باشد:
@@ -147,3 +159,11 @@ targets:
 #   port: 80  # فقط برای tcp
 #   category: "دسته‌بندی"
 #   description: "توضیحات"
+#   icon: "filename.png"  # (اختیاری) نام فایل آیکون در پوشه static/icons یا URL مستقیم به آیکون
+#
+# توضیح درباره آیکون‌ها:
+# - فایل‌های آیکون باید در پوشه `static/icons/` قرار گیرند.
+# - مقادیر `icon` باید دقیقاً نام فایل (شامل پسوند) در آن پوشه باشند؛ فرمت‌های معمول: .ico, .png, .svg
+# - اگر برای یک هدف مقدار `icon` را به صورت URL قرار دهید، ابزار `scripts/fetch_icons.py` می‌تواند آن را دانلود کند.
+# - اگر `icon` مشخص نشود، اسکریپت ممکن است favicon سایت را از مسیرهای رایج (مثل /favicon.ico) تلاش کند و آن را ذخیره کند.
+# - فایل‌های آیکون فعلی در `static/icons/`: aws.ico, azure.ico, cloudflare.png, digikala.png, github.ico, google.png, linkedin.ico, npm.png, pypi.png, telegram.png, youtube.png

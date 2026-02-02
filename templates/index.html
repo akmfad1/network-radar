@@ -212,6 +212,7 @@
             border-radius: 4px;
             cursor: pointer;
             transition: background 0.2s;
+            min-height: 40px;
         }
 
         .service-check:hover {
@@ -250,11 +251,26 @@
         }
 
         .service-check .abbr {
+            width: 28px;
+            height: 28px;
             font-size: 0.7rem;
             font-weight: 700;
-            padding: 2px 6px;
             border-radius: 4px;
             color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .service-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            object-fit: cover;
+            display: inline-block;
+            vertical-align: middle;
+            flex-shrink: 0;
         }
 
         /* Time Filter */
@@ -359,9 +375,9 @@
             color: var(--online-light);
         }
 
-        .server-badge.issues {
-            background: rgba(210, 153, 34, 0.2);
-            color: var(--degraded-light);
+        .server-badge.offline {
+            background: rgba(248, 81, 73, 0.12);
+            color: var(--offline-light);
         }
 
         .server-badge .dot {
@@ -383,6 +399,8 @@
             gap: 10px;
             transition: background 0.2s;
             cursor: pointer;
+            min-height: 48px;
+            height: 48px;
         }
 
         .service-row:hover {
@@ -394,13 +412,13 @@
             display: flex;
             flex-direction: row-reverse;
             gap: 2px;
-            height: 24px;
+            height: 28px;
             align-items: center;
         }
 
         .timeline-segment {
             flex: 1;
-            height: 20px;
+            height: 24px;
             border-radius: 2px;
             min-width: 3px;
             cursor: pointer;
@@ -418,30 +436,39 @@
         .timeline-segment.empty { background: var(--bg-hover); }
 
         .service-row .name {
-            width: 100px;
+            flex: 0 0 140px;
+            width: 140px;
             font-size: 0.85rem;
             font-weight: 500;
             text-align: right;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .service-row .abbr {
             width: 32px;
-            height: 24px;
-            border-radius: 4px;
+            height: 32px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 700;
             color: white;
+            flex: 0 0 auto;
         }
 
+        /* if an image is present, we hide the text abbreviation */
+        .service-row .abbr.hidden { display: none; }
+        .service-check .abbr.hidden { display: none; }
+
         .service-row .type {
+            flex: 0 0 45px;
             width: 45px;
             font-size: 0.65rem;
             color: var(--text-muted);
             text-align: center;
-            margin-right: auto;
         }
 
         /* Modal */
@@ -705,6 +732,7 @@
         // State
         let agentsData = {};
         let allServices = new Set();
+        let serviceConfigs = {}; // Store service configs for icon access
         let selectedServices = new Set();
         let dcFilter = 'all';
         let timeHours = 24;
@@ -732,6 +760,42 @@
                 return (words[0][0] + words[1][0]).toUpperCase();
             }
             return name.substring(0, 2).toUpperCase();
+        }
+
+        function getIconForService(name) {
+            const lowerName = name.toLowerCase();
+            // Map common service names to icon filenames
+            const iconMap = {
+                'google': 'google.png',
+                'youtube': 'youtube.png',
+                'facebook': 'facebook.png',
+                'instagram': 'instagram.png',
+                'twitter': 'twitter.png',
+                'x.com': 'twitter.png',
+                'linkedin': 'linkedin.png',
+                'github': 'github.png',
+                'gitlab': 'gitlab.png',
+                'reddit': 'reddit.png',
+                'telegram': 'telegram.png',
+                'whatsapp': 'whatsapp.png',
+                'discord': 'discord.png',
+                'slack': 'slack.png',
+                'microsoft': 'microsoft.png',
+                'azure': 'azure.png',
+                'aws': 'aws.png',
+                'cloudflare': 'cloudflare.png',
+                'netflix': 'netflix.png',
+                'spotify': 'spotify.png',
+                'apple': 'apple.png',
+                'amazon': 'amazon.png',
+                'dropbox': 'dropbox.png',
+                'wikipedia': 'wikipedia.png',
+            };
+            
+            for (const [key, icon] of Object.entries(iconMap)) {
+                if (lowerName.includes(key)) return icon;
+            }
+            return null;
         }
 
         function isInternalAgent(name) {
@@ -789,11 +853,17 @@
                 const color = getServiceColor(name);
                 const abbr = getServiceAbbr(name);
                 const checked = selectedServices.size === 0 || selectedServices.has(name);
+                // Use config.icon from serviceConfigs, fallback to getIconForService
+                const config = serviceConfigs[name] || {};
+                const icon = config.icon || getIconForService(name);
+                const imgHtml = icon ? `<img class="service-icon" src="/static/icons/${icon}" alt="${name}" onload="this.nextElementSibling.classList.add('hidden')" onerror="this.style.display='none'">` : '';
+                
                 return `
                     <label class="service-check">
                         <input type="checkbox" value="${name}" ${checked ? 'checked' : ''}>
                         <span class="checkbox"></span>
                         <span class="name">${name}</span>
+                        ${imgHtml}
                         <span class="abbr" style="background:${color}">${abbr}</span>
                     </label>
                 `;
@@ -840,16 +910,20 @@
                     return selectedServices.size === 0 || selectedServices.has(name);
                 });
 
-                // Check overall status
-                let hasIssue = false;
+                // Check overall status: consider a service 'current' only if its latest timestamp is recent (e.g., 1 minute)
+                const dataThresholdMs = 60 * 1000; // 1 minute
+                let hasData = false;
                 filteredTargets.forEach(([_, t]) => {
-                    if (t.current && (t.current.status === 'offline' || t.current.status === 'degraded')) {
-                        hasIssue = true;
+                    if (t.current && t.current.timestamp) {
+                        const ts = new Date(t.current.timestamp).getTime();
+                        if (Date.now() - ts <= dataThresholdMs) {
+                            hasData = true;
+                        }
                     }
                 });
 
-                const badgeClass = hasIssue ? 'issues' : 'online';
-                const badgeText = hasIssue ? 'مشکل' : 'آنلاین';
+                const badgeClass = hasData ? 'online' : 'offline';
+                const badgeText = hasData ? 'آنلاین' : 'آفلاین';
                 const location = isInternalAgent(agentName) ? 'ایران' : 'خارج';
 
                 return `
@@ -875,6 +949,8 @@
                                 const color = getServiceColor(name);
                                 const abbr = getServiceAbbr(name);
                                 const type = (config.type || 'HTTP').toUpperCase();
+                                const icon = config.icon || getIconForService(name);
+                                const imgHtml = icon ? `<img class="service-icon" src="/static/icons/${icon}" alt="${name}" onload="this.nextElementSibling.classList.add('hidden')" onerror="this.style.display='none'">` : '';
 
                                 // Build timeline - segments based on time range
                                 // Calculate segment count: 1h=30, 3h=36, 6h=36, 12h=48, 24h=60
@@ -895,6 +971,7 @@
 
                                 return `
                                     <div class="service-row" onclick="showHistory('${agentName}', '${encodeURIComponent(name)}')">
+                                        ${imgHtml}
                                         <span class="abbr" style="background:${color}">${abbr}</span>
                                         <span class="name">${name}</span>
                                         <div class="timeline">${segments.join('')}</div>
@@ -925,6 +1002,11 @@
                     if (!agents[agent]) agents[agent] = { targets: {} };
                     agents[agent].targets[name] = val;
                     allServices.add(name);
+                    
+                    // Store service config for icon access in sidebar
+                    if (val.config && !serviceConfigs[name]) {
+                        serviceConfigs[name] = val.config;
+                    }
                 });
 
                 agentsData = agents;
@@ -953,11 +1035,15 @@
                 const uptime = total > 0 ? ((online / total) * 100).toFixed(1) : 0;
 
                 let totalLatency = 0, count = 0;
+                const dataThresholdMs = 60 * 1000; // 1 minute
                 Object.values(agentsData).forEach(agent => {
                     Object.values(agent.targets).forEach(t => {
-                        if (t.current && t.current.latency_ms > 0) {
-                            totalLatency += t.current.latency_ms;
-                            count++;
+                        if (t.current && t.current.latency_ms > 0 && t.current.timestamp) {
+                            const ts = new Date(t.current.timestamp).getTime();
+                            if (Date.now() - ts <= dataThresholdMs) {
+                                totalLatency += t.current.latency_ms;
+                                count++;
+                            }
                         }
                     });
                 });

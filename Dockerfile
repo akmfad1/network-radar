@@ -23,6 +23,8 @@ RUN pip install --no-cache-dir -r requirements.txt \
 COPY app.py .
 COPY config.yaml .
 COPY templates/ templates/
+COPY static/ static/
+COPY favicon.ico static/favicon.ico
 
 # Create non-root user and grant ping capability
 RUN adduser -D -s /bin/sh radar && \

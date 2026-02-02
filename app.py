@@ -32,6 +32,16 @@ import yaml
 app = Flask(__name__)
 CORS(app)
 
+from flask import send_from_directory
+
+@app.route('/favicon.ico')
+def favicon():
+    # Prefer static/favicon.ico if present, otherwise serve root-level favicon.ico
+    static_favicon = os.path.join(app.root_path, 'static', 'favicon.ico')
+    if os.path.exists(static_favicon):
+        return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/x-icon')
+    return send_from_directory(app.root_path, 'favicon.ico', mimetype='image/x-icon')
+
 # Global storage for monitoring results
 monitoring_results: Dict[str, dict] = {}
 results_lock = threading.Lock()
@@ -463,6 +473,13 @@ def api_status():
     # Build a targets dict from the latest DB rows
     rows = get_latest_statuses()
     targets = {}
+
+    # Build map of target_name -> icon from loaded APP_CONFIG
+    target_icon_map = {}
+    for t in APP_CONFIG.get('targets', []):
+        if isinstance(t, dict) and t.get('name') and t.get('icon'):
+            target_icon_map[t.get('name')] = t.get('icon')
+
     for r in rows:
         key = f"{r['agent_id']} :: {r['target_name']}"
         # Get recent history for this target/agent (last 60 records)
@@ -478,7 +495,8 @@ def api_status():
             },
             'config': {
                 'host': r['host'],
-                'type': r['type']
+                'type': r['type'],
+                'icon': target_icon_map.get(r['target_name'])
             },
             'history': history
         }
