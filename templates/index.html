@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Radar - رادار مانیتورینگ</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #21262d;
+            --bg-hover: #30363d;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --border: #30363d;
+            --online: #2ea043;
+            --online-light: #56d364;
+            --degraded: #d29922;
+            --degraded-light: #e3b341;
+            --offline: #f85149;
+            --offline-light: #ff7b72;
+            --info: #58a6ff;
+            --info-light: #79c0ff;
+            --accent: #238636;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--info), #a855f7);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .logo span {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 24px;
+        }
+
+        .stat-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 20px;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .stat-box .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-box .label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-box.uptime .value { color: var(--online-light); }
+        .stat-box.latency .value { color: var(--degraded-light); }
+
+        .live-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--online);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            padding: 16px;
+            overflow-y: auto;
+            position: sticky;
+            top: 65px;
+            height: calc(100vh - 65px);
+        }
+
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .sidebar-title .icon {
+            opacity: 0.7;
+        }
+
+        /* Datacenter Tabs */
+        .dc-tabs {
+            display: flex;
+            background: var(--bg-card);
+            border-radius: 6px;
+            padding: 3px;
+        }
+
+        .dc-tab {
+            flex: 1;
+            padding: 8px 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .dc-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .dc-tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Service Checkboxes */
+        .service-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .service-check {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .service-check:hover {
+            background: var(--bg-hover);
+        }
+
+        .service-check input {
+            display: none;
+        }
+
+        .service-check .checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .service-check input:checked + .checkbox {
+            background: var(--info);
+            border-color: var(--info);
+        }
+
+        .service-check input:checked + .checkbox::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+        }
+
+        .service-check .name {
+            flex: 1;
+            font-size: 0.85rem;
+        }
+
+        .service-check .abbr {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+        }
+
+        /* Time Filter */
+        .time-select {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* Color Legend */
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px;
+            background: var(--bg-card);
+            border-radius: 6px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        .legend-color.online { background: var(--online); }
+        .legend-color.good { background: var(--info); }
+        .legend-color.degraded { background: var(--degraded); }
+        .legend-color.offline { background: var(--offline); }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* Server Cards */
+        .server-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .server-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .server-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .server-flag {
+            font-size: 1.5rem;
+        }
+
+        .server-name h3 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .server-name span {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .server-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .server-badge.online {
+            background: rgba(46, 160, 67, 0.2);
+            color: var(--online-light);
+        }
+
+        .server-badge.issues {
+            background: rgba(210, 153, 34, 0.2);
+            color: var(--degraded-light);
+        }
+
+        .server-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Services List */
+        .services-list {
+            padding: 8px 0;
+        }
+
+        .service-row {
+            display: flex;
+            align-items: center;
+            padding: 6px 16px;
+            gap: 10px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .service-row:hover {
+            background: var(--bg-hover);
+        }
+
+        .service-row .timeline {
+            flex: 1;
+            display: flex;
+            flex-direction: row-reverse;
+            gap: 2px;
+            height: 24px;
+            align-items: center;
+        }
+
+        .timeline-segment {
+            flex: 1;
+            height: 20px;
+            border-radius: 2px;
+            min-width: 3px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .timeline-segment:hover {
+            transform: scaleY(1.2);
+        }
+
+        .timeline-segment.online { background: var(--online); }
+        .timeline-segment.good { background: var(--info); }
+        .timeline-segment.degraded { background: var(--degraded); }
+        .timeline-segment.offline { background: var(--offline); }
+        .timeline-segment.empty { background: var(--bg-hover); }
+
+        .service-row .name {
+            width: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .service-row .abbr {
+            width: 32px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .service-row .type {
+            width: 45px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-right: auto;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal.open { display: flex; }
+
+        .modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: auto;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 16px;
+        }
+
+        .history-chart {
+            display: flex;
+            gap: 2px;
+            height: 100px;
+            align-items: flex-end;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: var(--bg-card);
+            border-radius: 6px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            min-width: 4px;
+            border-radius: 2px 2px 0 0;
+            cursor: pointer;
+        }
+
+        .chart-bar.online { background: var(--online); }
+        .chart-bar.good { background: var(--info); }
+        .chart-bar.degraded { background: var(--degraded); }
+        .chart-bar.offline { background: var(--offline); }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            gap: 16px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--info);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .header-stats {
+                display: none;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">📡</div>
+            <div>
+                <h1>رادار مانیتورینگ</h1>
+                <span>سیستم مانیتورینگ لحظه‌ای وضعیت اینترنت</span>
+            </div>
+        </div>
+
+        <div class="header-stats">
+            <div class="stat-box">
+                <div class="value" id="dc-count">-</div>
+                <div class="label">🏢 دیتاسنترها</div>
+            </div>
+            <div class="stat-box">
+                <div class="value" id="service-count">-</div>
+                <div class="label">⚡ سرویس‌ها</div>
+            </div>
+            <div class="stat-box uptime">
+                <div class="value" id="uptime">-%</div>
+                <div class="label">✓ در دسترس</div>
+            </div>
+            <div class="stat-box latency">
+                <div class="value" id="latency">-ms</div>
+                <div class="label">⏱ میانگین تاخیر</div>
+            </div>
+        </div>
+
+        <div class="live-status">
+            <div class="live-dot"></div>
+            <span>وضعیت لحظه‌ای</span>
+            <span id="last-update">-</span>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- Datacenter Filter -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <span class="icon">🌐</span>
+                    فیلتر دیتاسنتر
+                </div>
+                <div class="dc-tabs" id="dc-filter">
+                    <button class="dc-tab" data-filter="external">خارجی</button>
+                    <button class="dc-tab" data-filter="internal">داخلی</button>
+                    <button class="dc-tab active" data-filter="all">همه</button>
+                </div>
+            </div>
+
+            <!-- Time Filter -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <span class="icon">📅</span>
+                    محدوده زمانی
+                </div>
+                <select class="time-select" id="time-filter">
+                    <option value="1">۱ ساعت</option>
+                    <option value="3">۳ ساعت</option>
+                    <option value="6">۶ ساعت</option>
+                    <option value="12">۱۲ ساعت</option>
+                    <option value="24" selected>۲۴ ساعت</option>
+                </select>
+            </div>
+
+            <!-- Service Filter -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <span class="icon">⚙️</span>
+                    فیلتر سرویس‌ها
+                </div>
+                <div class="service-actions" style="display:flex;gap:8px;margin-bottom:10px;">
+                    <button id="select-all" style="flex:1;padding:6px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);cursor:pointer;font-size:0.8rem;font-family:inherit;">انتخاب همه</button>
+                    <button id="deselect-all" style="flex:1;padding:6px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);cursor:pointer;font-size:0.8rem;font-family:inherit;">هیچکدام</button>
+                </div>
+                <div class="service-list" id="service-filter">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Color Legend -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">
+                    <span class="icon">🎨</span>
+                    راهنمای رنگ‌ها
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color online"></div>
+                        <span>آنلاین (سریع)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color good"></div>
+                        <span>آنلاین (معمولی)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color degraded"></div>
+                        <span>کند (بیش از ۵۰۰ms)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color offline"></div>
+                        <span>آفلاین</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="servers-container">
+            <div class="loading">
+                <div class="spinner"></div>
+                <span>در حال بارگذاری...</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">تاریخچه</h3>
+                <button class="modal-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="history-chart" id="history-chart"></div>
+                <div id="history-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let agentsData = {};
+        let allServices = new Set();
+        let selectedServices = new Set();
+        let dcFilter = 'all';
+        let timeHours = 24;
+
+        // Colors for services
+        const serviceColors = {};
+        const colorPalette = [
+            '#2ea043', '#58a6ff', '#d29922', '#f85149', '#a371f7',
+            '#3fb950', '#79c0ff', '#e3b341', '#ff7b72', '#bc8cff',
+            '#56d364', '#a5d6ff', '#f0c674', '#ffa198', '#d2a8ff'
+        ];
+
+        function getServiceColor(name) {
+            if (!serviceColors[name]) {
+                const hash = name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+                serviceColors[name] = colorPalette[hash % colorPalette.length];
+            }
+            return serviceColors[name];
+        }
+
+        function getServiceAbbr(name) {
+            if (name.length <= 2) return name.toUpperCase();
+            const words = name.split(/[\s-_]+/);
+            if (words.length >= 2) {
+                return (words[0][0] + words[1][0]).toUpperCase();
+            }
+            return name.substring(0, 2).toUpperCase();
+        }
+
+        function isInternalAgent(name) {
+            const keywords = ['iran', 'tehran', 'karaj', 'arvan', 'hiweb', 'asiatech', 'shatel', 'sefroyek', 'amin'];
+            return keywords.some(kw => name.toLowerCase().includes(kw.toLowerCase()));
+        }
+
+        function getAgentFlag(name) {
+            const n = name.toLowerCase();
+            if (isInternalAgent(name)) return '🇮🇷';
+            if (n.includes('germany') || n.includes('nuremberg')) return '🇩🇪';
+            if (n.includes('finland') || n.includes('helsinki')) return '🇫🇮';
+            if (n.includes('france') || n.includes('roubaix')) return '🇫🇷';
+            if (n.includes('netherlands') || n.includes('amsterdam')) return '🇳🇱';
+            return '🌍';
+        }
+
+        function getStatusColor(status, latency) {
+            if (status === 'offline') return 'offline';
+            if (status === 'degraded' || latency > 500) return 'degraded';
+            if (latency > 200) return 'good';
+            return 'online';
+        }
+
+        function formatTime(iso) {
+            if (!iso) return '-';
+            const d = new Date(iso);
+            return d.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatLatency(ms) {
+            if (!ms || ms === 0) return '-';
+            return Math.round(ms) + 'ms';
+        }
+
+        function formatTimestamp(iso) {
+            if (!iso) return '';
+            const d = new Date(iso);
+            return d.toLocaleString('fa-IR', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
+
+        // Build service filter
+        function buildServiceFilter() {
+            const container = document.getElementById('service-filter');
+            const services = Array.from(allServices).sort();
+            
+            container.innerHTML = services.map(name => {
+                const color = getServiceColor(name);
+                const abbr = getServiceAbbr(name);
+                const checked = selectedServices.size === 0 || selectedServices.has(name);
+                return `
+                    <label class="service-check">
+                        <input type="checkbox" value="${name}" ${checked ? 'checked' : ''}>
+                        <span class="checkbox"></span>
+                        <span class="name">${name}</span>
+                        <span class="abbr" style="background:${color}">${abbr}</span>
+                    </label>
+                `;
+            }).join('');
+
+            container.querySelectorAll('input').forEach(input => {
+                input.addEventListener('change', () => {
+                    if (input.checked) {
+                        selectedServices.add(input.value);
+                    } else {
+                        selectedServices.delete(input.value);
+                    }
+                    // If all unchecked, show all
+                    if (selectedServices.size === 0) {
+                        container.querySelectorAll('input').forEach(i => i.checked = true);
+                    }
+                    renderServers();
+                });
+            });
+        }
+
+        // Render servers
+        function renderServers() {
+            const container = document.getElementById('servers-container');
+            
+            const filtered = Object.entries(agentsData).filter(([name, _]) => {
+                if (dcFilter === 'all') return true;
+                if (dcFilter === 'internal') return isInternalAgent(name);
+                if (dcFilter === 'external') return !isInternalAgent(name);
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="loading"><span>هیچ سروری یافت نشد</span></div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(([agentName, info]) => {
+                const flag = getAgentFlag(agentName);
+                const targets = Object.entries(info.targets);
+                
+                // Filter services
+                const filteredTargets = targets.filter(([name, _]) => {
+                    return selectedServices.size === 0 || selectedServices.has(name);
+                });
+
+                // Check overall status
+                let hasIssue = false;
+                filteredTargets.forEach(([_, t]) => {
+                    if (t.current && (t.current.status === 'offline' || t.current.status === 'degraded')) {
+                        hasIssue = true;
+                    }
+                });
+
+                const badgeClass = hasIssue ? 'issues' : 'online';
+                const badgeText = hasIssue ? 'مشکل' : 'آنلاین';
+                const location = isInternalAgent(agentName) ? 'ایران' : 'خارج';
+
+                return `
+                    <div class="server-card">
+                        <div class="server-header">
+                            <div class="server-info">
+                                <div class="server-flag">${flag}</div>
+                                <div class="server-name">
+                                    <h3>${agentName}</h3>
+                                    <span>${location} - ${filteredTargets.length} سرویس</span>
+                                </div>
+                            </div>
+                            <div class="server-badge ${badgeClass}">
+                                <span class="dot"></span>
+                                ${badgeText}
+                            </div>
+                        </div>
+                        <div class="services-list">
+                            ${filteredTargets.map(([name, data]) => {
+                                const config = data.config || {};
+                                const current = data.current || {};
+                                const history = data.history || [];
+                                const color = getServiceColor(name);
+                                const abbr = getServiceAbbr(name);
+                                const type = (config.type || 'HTTP').toUpperCase();
+
+                                // Build timeline - segments based on time range
+                                // Calculate segment count: 1h=30, 3h=36, 6h=36, 12h=48, 24h=60
+                                const segmentCount = timeHours <= 1 ? 30 : timeHours <= 3 ? 36 : timeHours <= 6 ? 36 : timeHours <= 12 ? 48 : 60;
+                                const segments = [];
+                                // Build from oldest to newest, then reverse for RTL (newest on right)
+                                for (let i = 0; i < segmentCount; i++) {
+                                    const idx = history.length - segmentCount + i;
+                                    const h = idx >= 0 ? history[idx] : null;
+                                    if (h) {
+                                        const colorClass = getStatusColor(h.status, h.latency_ms);
+                                        const tooltipText = `${formatTimestamp(h.timestamp)} | ${formatLatency(h.latency_ms)}`;
+                                        segments.push(`<div class="timeline-segment ${colorClass}" title="${tooltipText}" style="flex:1;min-width:${Math.max(3, Math.floor(180/segmentCount))}px;"></div>`);
+                                    } else {
+                                        segments.push(`<div class="timeline-segment empty" style="flex:1;min-width:${Math.max(3, Math.floor(180/segmentCount))}px;"></div>`);
+                                    }
+                                }
+
+                                return `
+                                    <div class="service-row" onclick="showHistory('${agentName}', '${encodeURIComponent(name)}')">
+                                        <span class="abbr" style="background:${color}">${abbr}</span>
+                                        <span class="name">${name}</span>
+                                        <div class="timeline">${segments.join('')}</div>
+                                        <span class="type">${type}</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Fetch status
+        async function fetchStatus() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+
+                const targets = data.targets || {};
+                const agents = {};
+
+                Object.entries(targets).forEach(([key, val]) => {
+                    const parts = key.split(' :: ');
+                    const agent = parts.length > 1 ? parts[0] : 'unknown';
+                    const name = parts.length > 1 ? parts[1] : key;
+
+                    if (!agents[agent]) agents[agent] = { targets: {} };
+                    agents[agent].targets[name] = val;
+                    allServices.add(name);
+                });
+
+                agentsData = agents;
+
+                // Update stats
+                updateStats();
+                document.getElementById('last-update').textContent = formatTime(data.timestamp);
+
+                buildServiceFilter();
+                renderServers();
+
+            } catch (e) {
+                console.error('Fetch error:', e);
+            }
+        }
+
+        async function updateStats() {
+            try {
+                const res = await fetch('/api/summary');
+                const data = await res.json();
+
+                const total = data.total || 0;
+                const online = data.online || 0;
+                const dcCount = Object.keys(agentsData).length;
+                const serviceCount = allServices.size;
+                const uptime = total > 0 ? ((online / total) * 100).toFixed(1) : 0;
+
+                let totalLatency = 0, count = 0;
+                Object.values(agentsData).forEach(agent => {
+                    Object.values(agent.targets).forEach(t => {
+                        if (t.current && t.current.latency_ms > 0) {
+                            totalLatency += t.current.latency_ms;
+                            count++;
+                        }
+                    });
+                });
+                const avgLatency = count > 0 ? Math.round(totalLatency / count) : 0;
+
+                document.getElementById('dc-count').textContent = dcCount;
+                document.getElementById('service-count').textContent = serviceCount;
+                document.getElementById('uptime').textContent = uptime + '%';
+                document.getElementById('latency').textContent = avgLatency + 'ms';
+
+            } catch (e) {
+                console.error('Stats error:', e);
+            }
+        }
+
+        // Modal
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modal-title');
+        const historyChart = document.getElementById('history-chart');
+        const historyList = document.getElementById('history-list');
+
+        function openModal() { modal.classList.add('open'); }
+        function closeModal() { modal.classList.remove('open'); }
+
+        document.querySelector('.modal-backdrop').addEventListener('click', closeModal);
+        document.querySelector('.modal-close').addEventListener('click', closeModal);
+
+        async function showHistory(agent, targetName) {
+            const name = decodeURIComponent(targetName);
+            modalTitle.textContent = `${name} — ${agent}`;
+            openModal();
+
+            try {
+                const res = await fetch(`/api/target/${encodeURIComponent(name)}?hours=${timeHours}`);
+                if (!res.ok) {
+                    historyList.innerHTML = '<p>داده‌ای یافت نشد</p>';
+                    return;
+                }
+
+                const data = await res.json();
+                const history = (data.history || []).filter(h => h.agent_id === agent);
+
+                if (!history.length) {
+                    historyList.innerHTML = '<p>داده‌ای موجود نیست</p>';
+                    historyChart.innerHTML = '';
+                    return;
+                }
+
+                const values = history.slice(-80);
+                const max = Math.max(...values.map(v => v.latency_ms || 0), 100);
+
+                historyChart.innerHTML = values.map(v => {
+                    const h = v.latency_ms > 0 ? Math.max(5, (v.latency_ms / max) * 100) : 100;
+                    const cls = getStatusColor(v.status, v.latency_ms);
+                    return `<div class="chart-bar ${cls}" style="height:${h}%" title="${formatLatency(v.latency_ms)}"></div>`;
+                }).join('');
+
+                historyList.innerHTML = `<p style="color:var(--text-secondary);font-size:0.85rem;">نمایش ${values.length} نمونه از ${timeHours} ساعت گذشته</p>`;
+
+            } catch (e) {
+                historyList.innerHTML = `<p>خطا: ${e}</p>`;
+            }
+        }
+
+        // Event listeners
+        document.getElementById('dc-filter').addEventListener('click', (e) => {
+            if (e.target.classList.contains('dc-tab')) {
+                document.querySelectorAll('.dc-tab').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                dcFilter = e.target.dataset.filter;
+                renderServers();
+            }
+        });
+
+        document.getElementById('time-filter').addEventListener('change', (e) => {
+            timeHours = parseInt(e.target.value);
+            renderServers(); // Re-render with new segment count
+        });
+
+        // Select all / Deselect all buttons
+        document.getElementById('select-all').addEventListener('click', () => {
+            const inputs = document.querySelectorAll('#service-filter input');
+            inputs.forEach(i => {
+                i.checked = true;
+                selectedServices.add(i.value);
+            });
+            renderServers();
+        });
+
+        document.getElementById('deselect-all').addEventListener('click', () => {
+            const inputs = document.querySelectorAll('#service-filter input');
+            inputs.forEach(i => {
+                i.checked = false;
+            });
+            selectedServices.clear();
+            renderServers();
+        });
+
+        // Init
+        fetchStatus();
+        setInterval(fetchStatus, 5000);
+    </script>
+</body>
+</html>

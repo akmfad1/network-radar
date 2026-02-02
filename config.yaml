@@ -1,0 +1,149 @@
+# Network Radar Configuration
+# تنظیمات سرویس مانیتورینگ شبکه
+
+# فاصله زمانی بررسی (ثانیه)
+check_interval: 30
+
+# تعداد رکوردهای تاریخچه برای هر هدف
+history_size: 100
+
+# پورت وب سرور
+web_port: 5000
+
+# مسیر فایل دیتابیس SQLite
+db_path: data.db
+
+# کلید API برای احراز هویت ایجنت‌ها
+api_key: "change-me"
+
+# نگهداری رکوردها (ساعت)
+retention_hours: 24
+
+# شناسه محلی این نود (برای زمانی که سرویس بررسی‌های محلی انجام می‌دهد)
+agent_id: "display"
+
+# لیست اهداف مانیتورینگ
+targets:
+  # DNS Servers
+  - name: "Google DNS"
+    host: "8.8.8.8"
+    type: "ping"
+    category: "DNS"
+    description: "سرور DNS گوگل"
+
+  - name: "Cloudflare DNS"
+    host: "1.1.1.1"
+    type: "ping"
+    category: "DNS"
+    description: "سرور DNS کلودفلر"
+
+  - name: "Shecan DNS"
+    host: "178.22.122.100"
+    type: "ping"
+    category: "DNS"
+    description: "سرور DNS شکن"
+
+  - name: "403 DNS"
+    host: "10.202.10.202"
+    type: "ping"
+    category: "DNS"
+    description: "سرور DNS 403"
+
+  # Web Services
+  - name: "Google"
+    host: "https://www.google.com"
+    type: "http"
+    category: "Web"
+    description: "موتور جستجوی گوگل"
+
+  - name: "Cloudflare"
+    host: "https://www.cloudflare.com"
+    type: "http"
+    category: "CDN"
+    description: "سرویس CDN کلودفلر"
+
+  # Development Services
+  - name: "GitHub"
+    host: "https://github.com"
+    type: "http"
+    category: "Development"
+    description: "پلتفرم مدیریت کد"
+
+  - name: "GitLab"
+    host: "https://gitlab.com"
+    type: "http"
+    category: "Development"
+    description: "پلتفرم GitLab"
+
+  - name: "NPM Registry"
+    host: "https://registry.npmjs.org"
+    type: "http"
+    category: "Development"
+    description: "مخزن پکیج‌های NPM"
+
+  - name: "PyPI"
+    host: "https://pypi.org"
+    type: "http"
+    category: "Development"
+    description: "مخزن پکیج‌های پایتون"
+
+  - name: "Docker Hub"
+    host: "https://hub.docker.com"
+    type: "http"
+    category: "Development"
+    description: "مخزن ایمیج‌های داکر"
+
+  # Cloud Providers
+  - name: "AWS"
+    host: "https://aws.amazon.com"
+    type: "http"
+    category: "Cloud"
+    description: "سرویس ابری آمازون"
+
+  - name: "Azure"
+    host: "https://azure.microsoft.com"
+    type: "http"
+    category: "Cloud"
+    description: "سرویس ابری مایکروسافت"
+
+  - name: "DigitalOcean"
+    host: "https://www.digitalocean.com"
+    type: "http"
+    category: "Cloud"
+    description: "سرویس ابری دیجیتال‌اوشن"
+
+  # TCP Port Checks (examples)
+  - name: "Google DNS TCP"
+    host: "8.8.8.8"
+    type: "tcp"
+    port: 53
+    category: "DNS"
+    description: "پورت TCP سرور DNS گوگل"
+
+  # Social Media
+  - name: "Twitter/X"
+    host: "https://x.com"
+    type: "http"
+    category: "Social"
+    description: "شبکه اجتماعی توییتر"
+
+  - name: "LinkedIn"
+    host: "https://www.linkedin.com"
+    type: "http"
+    category: "Social"
+    description: "شبکه اجتماعی لینکدین"
+
+# نکات:
+# type می‌تواند یکی از این مقادیر باشد:
+#   - ping: بررسی با پینگ ICMP
+#   - http: بررسی HTTP/HTTPS
+#   - tcp: بررسی اتصال TCP به پورت مشخص
+#   - dns: بررسی رزولو DNS
+
+# برای افزودن سرور یا سرویس جدید:
+# - name: "نام سرویس"
+#   host: "آدرس IP یا URL"
+#   type: "نوع بررسی"
+#   port: 80  # فقط برای tcp
+#   category: "دسته‌بندی"
+#   description: "توضیحات"

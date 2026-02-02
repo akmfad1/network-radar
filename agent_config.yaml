@@ -1,0 +1,40 @@
+check_interval: 30
+concurrency: 4
+batch_send_interval: 10
+
+targets:
+  - name: "Cloudflare DNS"
+    host: "1.1.1.1"
+    type: "ping"
+
+  - name: "Docker"
+    host: "https://hub.docker.com"
+    type: "http"
+
+  - name: "GitHub"
+    host: "https://github.com"
+    type: "http"
+
+  - name: "Google DNS"
+    host: "8.8.8.8"
+    type: "ping"
+
+  - name: "NPM"
+    host: "https://registry.npmjs.org"
+    type: "http"
+
+  - name: "Digikala"
+    host: "https://www.digikala.com"
+    type: "http"
+
+  - name: "Telegram"
+    host: "https://t.me"
+    type: "http"
+
+  - name: "YouTube"
+    host: "https://www.youtube.com"
+    type: "http"
+
+  - name: "PyPI"
+    host: "https://pypi.org"
+    type: "http"

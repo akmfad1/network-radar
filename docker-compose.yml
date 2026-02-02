@@ -1,0 +1,52 @@
+# Network Radar Docker Compose Configuration
+# تنظیمات Docker Compose برای سرویس مانیتورینگ
+
+version: '3.8'
+
+services:
+  network-radar:
+    build: .
+    container_name: network-radar
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      # Mount config file for easy editing
+      - ./config.yaml:/app/config.yaml:ro
+      - ./data.db:/app/data.db
+    environment:
+      - TZ=Asia/Tehran
+      - API_KEY=${API_KEY:-change-me}
+    # Required for ping to work
+    cap_add:
+      - NET_RAW
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/summary"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+
+# Optional: Add Nginx reverse proxy
+#   nginx:
+#     image: nginx:alpine
+#     container_name: radar-nginx
+#     restart: unless-stopped
+#     ports:
+#       - "80:80"
+#       - "443:443"
+#     volumes:
+#       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+#       - ./ssl:/etc/nginx/ssl:ro
+#     depends_on:
+#       - network-radar
+
+networks:
+  default:
+    name: network-radar-net

@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  network-radar-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    container_name: network-radar-agent
+    restart: unless-stopped
+    environment:
+      - DISPLAY_URL=http://display:5000
+      - API_KEY=change-me
+      - AGENT_ID=server-1
+    volumes:
+      - ./agent_config.yaml:/app/agent_config.yaml:ro
+    cap_add:
+      - NET_RAW
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
