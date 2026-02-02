@@ -27,7 +27,7 @@
 
 ```bash
 # دانلود پروژه
-git clone https://github.com/YOUR_USERNAME/network-radar.git
+git clone https://github.com/akmfad1/network-radar.git
 cd network-radar
 
 # اجرای اسکریپت نصب
@@ -43,7 +43,7 @@ http://YOUR_SERVER_IP:5000
 
 ```bash
 # دانلود پروژه
-git clone https://github.com/YOUR_USERNAME/network-radar.git
+git clone https://github.com/akmfad1/network-radar.git
 cd network-radar
 
 # اجرا با Docker Compose
@@ -58,7 +58,7 @@ sudo apt update
 sudo apt install python3 python3-pip python3-venv iputils-ping dnsutils
 
 # دانلود پروژه
-git clone https://github.com/YOUR_USERNAME/network-radar.git
+git clone https://github.com/akmfad1/network-radar.git
 cd network-radar
 
 # ایجاد محیط مجازی
