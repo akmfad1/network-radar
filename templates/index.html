@@ -480,7 +480,7 @@
             flex: 1;
             height: 24px;
             border-radius: 2px;
-            min-width: 3px;
+            min-width: 2px;
             cursor: pointer;
             transition: transform 0.1s;
         }
@@ -748,11 +748,11 @@
             <div class="filter-group">
                 <div class="filter-label">📅 محدوده زمانی</div>
                 <select class="header-time-select" id="header-time-filter">
-                    <option value="1">۱ ساعت</option>
+                    <option value="1" selected>۱ ساعت</option>
                     <option value="3">۳ ساعت</option>
                     <option value="6">۶ ساعت</option>
                     <option value="12">۱۲ ساعت</option>
-                    <option value="24" selected>۲۴ ساعت</option>
+                    <option value="24">۲۴ ساعت</option>
                 </select>
             </div>
         </div>
@@ -840,7 +840,7 @@
         let serviceConfigs = {}; // Store service configs for icon access
         let selectedServices = new Set();
         let dcFilter = 'all';
-        let timeHours = 24;
+        let timeHours = 1;
 
         // Colors for services
         const serviceColors = {};
@@ -1015,8 +1015,8 @@
                     return selectedServices.size === 0 || selectedServices.has(name);
                 });
 
-                // Check overall status: consider a service 'current' only if its latest timestamp is recent (e.g., 1 minute)
-                const dataThresholdMs = 60 * 1000; // 1 minute
+                // Check overall status: consider a service 'current' only if its latest timestamp is recent (e.g., 2 minutes)
+                const dataThresholdMs = 120 * 1000; // 2 minutes
                 let hasData = false;
                 filteredTargets.forEach(([_, t]) => {
                     if (t.current && t.current.timestamp) {
@@ -1058,19 +1058,27 @@
                                 const imgHtml = icon ? `<img class="service-icon" src="/static/icons/${icon}" alt="${name}" onload="this.nextElementSibling.classList.add('hidden')" onerror="this.style.display='none'">` : '';
 
                                 // Build timeline - segments based on time range
-                                // Calculate segment count: 1h=30, 3h=36, 6h=36, 12h=48, 24h=60
-                                const segmentCount = timeHours <= 1 ? 30 : timeHours <= 3 ? 36 : timeHours <= 6 ? 36 : timeHours <= 12 ? 48 : 60;
+                                // Calculate segment count: 1h=60 (one per minute), 3h/6h/12h/24h=180 (sampled)
+                                const segmentCount = timeHours <= 1 ? 60 : 180;
                                 const segments = [];
+                                
+                                // Calculate how many history items per segment for sampling
+                                const totalMinutes = timeHours * 60;
+                                const minutesPerSegment = totalMinutes / segmentCount;
+                                
                                 // Build from oldest to newest, then reverse for RTL (newest on right)
                                 for (let i = 0; i < segmentCount; i++) {
-                                    const idx = history.length - segmentCount + i;
-                                    const h = idx >= 0 ? history[idx] : null;
+                                    // Calculate which history index to sample
+                                    const targetMinuteFromEnd = Math.floor((segmentCount - i) * minutesPerSegment);
+                                    const idx = history.length - targetMinuteFromEnd;
+                                    const h = idx >= 0 && idx < history.length ? history[idx] : null;
+                                    
                                     if (h) {
                                         const colorClass = getStatusColor(h.status, h.latency_ms);
                                         const tooltipText = `${formatTimestamp(h.timestamp)} | ${formatLatency(h.latency_ms)}`;
-                                        segments.push(`<div class="timeline-segment ${colorClass}" title="${tooltipText}" style="flex:1;min-width:${Math.max(3, Math.floor(180/segmentCount))}px;"></div>`);
+                                        segments.push(`<div class="timeline-segment ${colorClass}" title="${tooltipText}" style="flex:1;min-width:${Math.max(2, Math.floor(180/segmentCount))}px;"></div>`);
                                     } else {
-                                        segments.push(`<div class="timeline-segment empty" style="flex:1;min-width:${Math.max(3, Math.floor(180/segmentCount))}px;"></div>`);
+                                        segments.push(`<div class="timeline-segment empty" style="flex:1;min-width:${Math.max(2, Math.floor(180/segmentCount))}px;"></div>`);
                                     }
                                 }
 

@@ -169,16 +169,20 @@ async def send_batch(results):
     payload = {'agent_id': AGENT_ID, 'checks': results}
     headers = {'Content-Type': 'application/json', 'X-API-Key': API_KEY}
 
+    print(f"[{utcnow().strftime('%Y-%m-%d %H:%M:%S')}] Sending {len(results)} results to {url}")
+    print(f"Agent ID: {AGENT_ID}, API Key: {'*' * (len(API_KEY) - 4) + API_KEY[-4:] if len(API_KEY) > 4 else '***'}")
+
     for attempt in range(5):
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.post(url, json=payload, headers=headers, timeout=aiohttp.ClientTimeout(total=10)) as resp:
                     if resp.status == 200:
+                        print(f"✓ Batch sent successfully!")
                         return True
                     text = await resp.text()
-                    print(f"Ingest failed: {resp.status} - {text}")
+                    print(f"✗ Ingest failed: {resp.status} - {text}")
         except Exception as e:
-            print(f"Error sending batch: {e}")
+            print(f"✗ Error sending batch (attempt {attempt + 1}/5): {e}")
         await asyncio.sleep(2 ** attempt)
     return False
 
@@ -186,17 +190,34 @@ async def main_loop(cfg):
     interval = cfg.get('check_interval', 60)
     batch_send_interval = cfg.get('batch_send_interval', 10)
     
+    print(f"\n{'='*60}")
+    print(f"Network Radar Agent Started")
+    print(f"{'='*60}")
+    print(f"Display URL: {DISPLAY_URL}")
+    print(f"Agent ID: {AGENT_ID}")
+    print(f"Check Interval: {interval}s")
+    print(f"Targets: {len(cfg.get('targets', []))}")
+    print(f"{'='*60}\n")
+    
     # Wait until the next round minute to start
     now = time.time()
     seconds_into_minute = now % 60
     if seconds_into_minute > 0:
         sleep_time = 60 - seconds_into_minute
-        print(f"Waiting {sleep_time:.1f}s to sync with next round minute...")
+        print(f"⏳ Waiting {sleep_time:.1f}s to sync with next round minute...")
         await asyncio.sleep(sleep_time)
     
     while True:
         cycle_start = time.time()
+        print(f"\n[{utcnow().strftime('%Y-%m-%d %H:%M:%S')}] Running checks...")
         results = await run_cycle(cfg)
+        
+        # Print summary
+        online = sum(1 for r in results if r['status'] == 'online')
+        degraded = sum(1 for r in results if r['status'] == 'degraded')
+        offline = sum(1 for r in results if r['status'] == 'offline')
+        print(f"Results: {online} online, {degraded} degraded, {offline} offline")
+        
         await send_batch(results)
         
         # Calculate sleep time to wake up at the next round minute
@@ -208,18 +229,28 @@ async def main_loop(cfg):
         seconds_into_minute = now % 60
         target_seconds = (60 - seconds_into_minute) if seconds_into_minute > 0 else 60
         
+        print(f"💤 Sleeping for {target_seconds:.1f}s until next cycle...")
         # Use the target_seconds to sync with round minutes
         await asyncio.sleep(target_seconds)
 
 if __name__ == '__main__':
+    print("Starting Network Radar Agent...")
     cfg_path = Path(CONFIG_PATH)
     if not cfg_path.exists():
-        print(f"Config {CONFIG_PATH} not found")
+        print(f"❌ Config {CONFIG_PATH} not found")
         raise SystemExit(1)
 
+    print(f"✓ Loading config from {CONFIG_PATH}")
     with open(cfg_path, 'r', encoding='utf-8') as f:
         cfg = yaml.safe_load(f)
 
     # Allow env overrides
     cfg['check_interval'] = int(os.environ.get('CHECK_INTERVAL', cfg.get('check_interval', 30)))
-    asyncio.run(main_loop(cfg))
+    
+    try:
+        asyncio.run(main_loop(cfg))
+    except KeyboardInterrupt:
+        print("\n\nAgent stopped by user")
+    except Exception as e:
+        print(f"\n❌ Fatal error: {e}")
+        raise
