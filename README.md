@@ -92,12 +92,14 @@ targets:
     host: "8.8.8.8"
     type: "ping"
     category: "DNS"
+    icon: "googledns.png"  # (اختیاری) نام فایل آیکون در static/icons/
 
   # بررسی HTTP
   - name: "GitHub"
     host: "https://github.com"
     type: "http"
     category: "Development"
+    icon: "github.ico"
 
   # بررسی پورت TCP
   - name: "SSH Server"
@@ -105,13 +107,22 @@ targets:
     type: "tcp"
     port: 22
     category: "Servers"
+    icon: "server.png"  # اختیاری
 
   # بررسی DNS Resolution
   - name: "Domain Check"
     host: "example.com"
     type: "dns"
     category: "DNS"
+    icon: "example.png"
 ```
+
+**توضیح درباره آیکون‌ها:**
+
+- فیلد `icon` **اختیاری** است و می‌تواند نام فایل (مثلاً `google.png`) در پوشه `static/icons/` یا یک URL مستقیم به تصویر باشد.
+- فرمت‌های متداول: `.ico`, `.png`, `.svg`.
+- برای دانلود خودکار آیکون‌ها می‌توانید از `scripts/fetch_icons.py` استفاده کنید.
+- آیکون‌های فعلی در `static/icons/`: `aws.ico`, `azure.ico`, `cloudflare.png`, `digikala.png`, `github.ico`, `google.png`, `linkedin.ico`, `npm.png`, `pypi.png`, `telegram.png`, `youtube.png`.
 
 ### انواع بررسی (Types)
 
