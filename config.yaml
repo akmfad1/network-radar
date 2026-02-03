@@ -29,7 +29,7 @@ targets:
     host: "8.8.8.8"
     type: "ping"
     category: "DNS"
-    icon: "google.png"
+    icon: "googledns.png"
     description: "سرور DNS گوگل"
 
   - name: "Cloudflare DNS"
@@ -43,13 +43,8 @@ targets:
     host: "178.22.122.100"
     type: "ping"
     category: "DNS"
+    icon: "shecan.png"
     description: "سرور DNS شکن"
-
-  - name: "403 DNS"
-    host: "10.202.10.202"
-    type: "ping"
-    category: "DNS"
-    description: "سرور DNS 403"
 
   # Web Services
   - name: "Google"
@@ -79,7 +74,7 @@ targets:
     type: "http"
     category: "Development"
     icon: "docker.png"
-    description: "پلتفرم Docker"
+    description: "مخزن ایمیج‌های داکر"
 
   - name: "NPM"
     host: "https://registry.npmjs.org"
@@ -95,11 +90,12 @@ targets:
     icon: "pypi.png"
     description: "مخزن پکیج‌های پایتون"
 
-  - name: "Docker Hub"
-    host: "https://hub.docker.com"
+  - name: "Google Play"
+    host: "https://play.google.com"
     type: "http"
     category: "Development"
-    description: "مخزن ایمیج‌های داکر"
+    icon: "googleplay.png"
+    description: "Google Play"
 
   # Cloud Providers
   - name: "Digikala"
@@ -107,28 +103,14 @@ targets:
     type: "http"
     category: "Cloud"
     icon: "digikala.png"
-    description: "سرویس ابری آمازون"
-
-  - name: "Azure"
-    host: "https://azure.microsoft.com"
-    type: "http"
-    category: "Cloud"
-    icon: "azure.ico"
-    description: "سرویس ابری مایکروسافت"
+    description: "دیجیکالا"
 
   - name: "DigitalOcean"
     host: "https://www.digitalocean.com"
     type: "http"
     category: "Cloud"
+    icon: "digitalocean.png"
     description: "سرویس ابری دیجیتال‌اوشن"
-
-  # TCP Port Checks (examples)
-  - name: "Google DNS TCP"
-    host: "8.8.8.8"
-    type: "tcp"
-    port: 53
-    category: "DNS"
-    description: "پورت TCP سرور DNS گوگل"
 
   # Social Media
   - name: "Telegram"
@@ -144,6 +126,20 @@ targets:
     category: "Social"
     icon: "youtube.png"
     description: "شبکه اجتماعی یوتوب"
+
+  - name: "Whatsapp"
+    host: "https://web.whatsapp.com"
+    type: "http"
+    category: "Social"
+    icon: "whatsapp.png"
+    description: "شبکه اجتماعی whatsapp"
+
+  - name: "Instagram"
+    host: "https://instagram.com"
+    type: "http"
+    category: "Social"
+    icon: "instagram.png"
+    description: "شبکه اجتماعی instagram"
 
 # نکات:
 # type می‌تواند یکی از این مقادیر باشد:

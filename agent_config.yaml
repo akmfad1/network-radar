@@ -1,30 +1,54 @@
 check_interval: 60
 concurrency: 4
 batch_send_interval: 10
-
+api_key: ihTspuJgHbSpzxUZOXBoddaRAlPAOnsM
 targets:
   - name: "Cloudflare DNS"
     host: "1.1.1.1"
     type: "ping"
 
+  - name: "Google DNS"
+    host: "8.8.8.8"
+    type: "ping"
+
+  - name: "Google"
+    host: "https://www.google.com"
+    type: "http"
+
+  - name: "Digikala"
+    host: "https://www.digikala.com"
+    type: "http"
+
   - name: "Docker"
     host: "https://hub.docker.com"
+    type: "http"
+
+  - name: "Google Play"
+    host: "https://play.google.com"
     type: "http"
 
   - name: "GitHub"
     host: "https://github.com"
     type: "http"
 
-  - name: "Google DNS"
-    host: "8.8.8.8"
-    type: "ping"
-
   - name: "NPM"
     host: "https://registry.npmjs.org"
     type: "http"
 
-  - name: "Digikala"
-    host: "https://www.digikala.com"
+  - name: "PyPI"
+    host: "https://pypi.org"
+    type: "http"
+
+  - name: "DigitalOcean"
+    host: "https://www.digitalocean.com"
+    type: "http"
+
+  - name: "Instagram"
+    host: "https://instagram.com"
+    type: "http"
+
+  - name: "Whatsapp"
+    host: "https://web.whatsapp.com"
     type: "http"
 
   - name: "Telegram"
@@ -35,6 +59,4 @@ targets:
     host: "https://www.youtube.com"
     type: "http"
 
-  - name: "PyPI"
-    host: "https://pypi.org"
-    type: "http"
+
