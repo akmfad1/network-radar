@@ -183,12 +183,33 @@ async def send_batch(results):
     return False
 
 async def main_loop(cfg):
-    interval = cfg.get('check_interval', 30)
+    interval = cfg.get('check_interval', 60)
     batch_send_interval = cfg.get('batch_send_interval', 10)
+    
+    # Wait until the next round minute to start
+    now = time.time()
+    seconds_into_minute = now % 60
+    if seconds_into_minute > 0:
+        sleep_time = 60 - seconds_into_minute
+        print(f"Waiting {sleep_time:.1f}s to sync with next round minute...")
+        await asyncio.sleep(sleep_time)
+    
     while True:
+        cycle_start = time.time()
         results = await run_cycle(cfg)
         await send_batch(results)
-        await asyncio.sleep(interval)
+        
+        # Calculate sleep time to wake up at the next round minute
+        elapsed = time.time() - cycle_start
+        sleep_time = interval - (elapsed % interval)
+        
+        # Adjust to align with round minutes
+        now = time.time()
+        seconds_into_minute = now % 60
+        target_seconds = (60 - seconds_into_minute) if seconds_into_minute > 0 else 60
+        
+        # Use the target_seconds to sync with round minutes
+        await asyncio.sleep(target_seconds)
 
 if __name__ == '__main__':
     cfg_path = Path(CONFIG_PATH)

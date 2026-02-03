@@ -1,5 +1,5 @@
 # Sample agent config
-check_interval: 30
+check_interval: 60
 concurrency: 4
 batch_send_interval: 10
 
