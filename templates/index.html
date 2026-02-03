@@ -129,6 +129,66 @@
             50% { opacity: 0.4; }
         }
 
+        .header-filters {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .filter-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .header-dc-tabs {
+            display: flex;
+            background: var(--bg-card);
+            border-radius: 6px;
+            padding: 2px;
+            gap: 2px;
+        }
+
+        .header-dc-tab {
+            padding: 6px 14px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .header-dc-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .header-dc-tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .header-time-select {
+            padding: 6px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+            min-width: 100px;
+        }
+
         /* Main Layout */
         .main-layout {
             display: flex;
@@ -569,6 +629,21 @@
         }
 
         /* Responsive */
+        @media (max-width: 1200px) {
+            .header-stats {
+                gap: 12px;
+            }
+            
+            .stat-box {
+                min-width: 100px;
+                padding: 8px 16px;
+            }
+            
+            .stat-box .value {
+                font-size: 1.25rem;
+            }
+        }
+
         @media (max-width: 900px) {
             .sidebar {
                 display: none;
@@ -576,6 +651,43 @@
             
             .header-stats {
                 display: none;
+            }
+            
+            .header-filters {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            .header-time-select {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+            
+            .logo h1 {
+                font-size: 1rem;
+            }
+            
+            .logo span {
+                font-size: 0.7rem;
+            }
+            
+            .header-filters {
+                width: 100%;
+            }
+            
+            .live-status {
+                font-size: 0.75rem;
             }
         }
 
@@ -624,6 +736,27 @@
             </div>
         </div>
 
+        <div class="header-filters">
+            <div class="filter-group">
+                <div class="filter-label">🌐 دیتاسنتر</div>
+                <div class="header-dc-tabs" id="header-dc-filter">
+                    <button class="header-dc-tab" data-filter="external">خارجی</button>
+                    <button class="header-dc-tab" data-filter="internal">داخلی</button>
+                    <button class="header-dc-tab active" data-filter="all">همه</button>
+                </div>
+            </div>
+            <div class="filter-group">
+                <div class="filter-label">📅 محدوده زمانی</div>
+                <select class="header-time-select" id="header-time-filter">
+                    <option value="1">۱ ساعت</option>
+                    <option value="3">۳ ساعت</option>
+                    <option value="6">۶ ساعت</option>
+                    <option value="12">۱۲ ساعت</option>
+                    <option value="24" selected>۲۴ ساعت</option>
+                </select>
+            </div>
+        </div>
+
         <div class="live-status">
             <div class="live-dot"></div>
             <span>وضعیت لحظه‌ای</span>
@@ -634,34 +767,6 @@
     <div class="main-layout">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <!-- Datacenter Filter -->
-            <div class="sidebar-section">
-                <div class="sidebar-title">
-                    <span class="icon">🌐</span>
-                    فیلتر دیتاسنتر
-                </div>
-                <div class="dc-tabs" id="dc-filter">
-                    <button class="dc-tab" data-filter="external">خارجی</button>
-                    <button class="dc-tab" data-filter="internal">داخلی</button>
-                    <button class="dc-tab active" data-filter="all">همه</button>
-                </div>
-            </div>
-
-            <!-- Time Filter -->
-            <div class="sidebar-section">
-                <div class="sidebar-title">
-                    <span class="icon">📅</span>
-                    محدوده زمانی
-                </div>
-                <select class="time-select" id="time-filter">
-                    <option value="1">۱ ساعت</option>
-                    <option value="3">۳ ساعت</option>
-                    <option value="6">۶ ساعت</option>
-                    <option value="12">۱۲ ساعت</option>
-                    <option value="24" selected>۲۴ ساعت</option>
-                </select>
-            </div>
-
             <!-- Service Filter -->
             <div class="sidebar-section">
                 <div class="sidebar-title">
@@ -1109,16 +1214,16 @@
         }
 
         // Event listeners
-        document.getElementById('dc-filter').addEventListener('click', (e) => {
-            if (e.target.classList.contains('dc-tab')) {
-                document.querySelectorAll('.dc-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('header-dc-filter').addEventListener('click', (e) => {
+            if (e.target.classList.contains('header-dc-tab')) {
+                document.querySelectorAll('.header-dc-tab').forEach(t => t.classList.remove('active'));
                 e.target.classList.add('active');
                 dcFilter = e.target.dataset.filter;
                 renderServers();
             }
         });
 
-        document.getElementById('time-filter').addEventListener('change', (e) => {
+        document.getElementById('header-time-filter').addEventListener('change', (e) => {
             timeHours = parseInt(e.target.value);
             renderServers(); // Re-render with new segment count
         });
