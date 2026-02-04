@@ -474,6 +474,17 @@ def api_status():
     rows = get_latest_statuses()
     targets = {}
 
+    # Get hours parameter from query string (default to 1 hour)
+    try:
+        hours = int(request.args.get('hours', 1))
+        hours = max(1, min(hours, 24))  # Clamp between 1 and 24
+    except:
+        hours = 1
+    
+    # Calculate appropriate limit based on time range
+    # Assuming checks every minute: 60 per hour
+    limit = hours * 60
+
     # Build map of target_name -> icon from loaded APP_CONFIG
     target_icon_map = {}
     for t in APP_CONFIG.get('targets', []):
@@ -482,8 +493,8 @@ def api_status():
 
     for r in rows:
         key = f"{r['agent_id']} :: {r['target_name']}"
-        # Get recent history for this target/agent (last 60 records)
-        history = get_recent_history(r['agent_id'], r['target_name'], limit=60)
+        # Get recent history for this target/agent based on time range
+        history = get_recent_history(r['agent_id'], r['target_name'], limit=limit)
         targets[key] = {
             'current': {
                 'target_name': r['target_name'],

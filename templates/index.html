@@ -17,6 +17,14 @@
             --border: #30363d;
             --online: #2ea043;
             --online-light: #56d364;
+            --good: #58a6ff;
+            --good-light: #79c0ff;
+            --medium: #d29922;
+            --medium-light: #e3b341;
+            --slow: #f0883e;
+            --slow-light: #ffa657;
+            --very-slow: #da3633;
+            --very-slow-light: #f85149;
             --degraded: #d29922;
             --degraded-light: #e3b341;
             --offline: #f85149;
@@ -371,8 +379,10 @@
         }
 
         .legend-color.online { background: var(--online); }
-        .legend-color.good { background: var(--info); }
-        .legend-color.degraded { background: var(--degraded); }
+        .legend-color.good { background: var(--good); }
+        .legend-color.medium { background: var(--medium); }
+        .legend-color.slow { background: var(--slow); }
+        .legend-color.very-slow { background: var(--very-slow); }
         .legend-color.offline { background: var(--offline); }
 
         /* Main Content */
@@ -456,9 +466,8 @@
             display: flex;
             align-items: center;
             padding: 6px 16px;
-            gap: 10px;
+            gap: 6px;
             transition: background 0.2s;
-            cursor: pointer;
             min-height: 48px;
             height: 48px;
         }
@@ -481,8 +490,8 @@
             height: 24px;
             border-radius: 2px;
             min-width: 2px;
-            cursor: pointer;
             transition: transform 0.1s;
+            position: relative;
         }
 
         .timeline-segment:hover {
@@ -490,20 +499,153 @@
         }
 
         .timeline-segment.online { background: var(--online); }
-        .timeline-segment.good { background: var(--info); }
-        .timeline-segment.degraded { background: var(--degraded); }
+        .timeline-segment.good { background: var(--good); }
+        .timeline-segment.medium { background: var(--medium); }
+        .timeline-segment.slow { background: var(--slow); }
+        .timeline-segment.very-slow { background: var(--very-slow); }
         .timeline-segment.offline { background: var(--offline); }
         .timeline-segment.empty { background: var(--bg-hover); }
 
+        /* Custom Tooltip */
+        .timeline-segment .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px 10px;
+            min-width: 100px;
+            text-align: center;
+            z-index: 10000;
+            pointer-events: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            margin-bottom: 4px;
+            white-space: nowrap;
+        }
+
+        .timeline-segment:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip .tooltip-service {
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .tooltip .tooltip-time {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .tooltip .tooltip-divider {
+            border-top: 1px solid var(--border);
+            margin: 4px 0;
+        }
+
+        .tooltip .tooltip-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+        }
+
+        .tooltip .tooltip-status .status-text {
+            font-weight: 500;
+        }
+
+        .tooltip .tooltip-status .status-text.online { color: var(--online); }
+        .tooltip .tooltip-status .status-text.good { color: var(--good); }
+        .tooltip .tooltip-status .status-text.medium { color: var(--medium); }
+        .tooltip .tooltip-status .status-text.slow { color: var(--slow); }
+        .tooltip .tooltip-status .status-text.very-slow { color: var(--very-slow); }
+        .tooltip .tooltip-status .status-text.offline { color: var(--offline); }
+
+        .tooltip .tooltip-status .latency {
+            color: var(--text-muted);
+        }
+
         .service-row .name {
-            flex: 0 0 140px;
-            width: 140px;
+            flex: 0 0 110px;
+            width: 110px;
             font-size: 0.85rem;
             font-weight: 500;
-            text-align: right;
+            text-align: left;
             white-space: nowrap;
+            overflow: visible;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            transition: color 0.2s;
+            margin-right: 0;
+            position: relative;
+        }
+        
+        .service-row .name .name-text {
+            display: block;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        .service-row .name:hover {
+            color: var(--info);
+        }
+
+        /* Service name tooltip */
+        .service-row .name .service-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: calc(100% + 5px);
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            min-width: 200px;
+            text-align: left;
+            z-index: 10001;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            transition: opacity 0.2s;
+            white-space: normal;
+        }
+
+        .service-row .name:hover .service-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .service-tooltip .tooltip-header {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .service-tooltip .tooltip-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 0.8rem;
+        }
+
+        .service-tooltip .tooltip-label {
+            color: var(--text-secondary);
+        }
+
+        .service-tooltip .tooltip-value {
+            color: var(--text-primary);
+            font-weight: 500;
         }
 
         .service-row .abbr {
@@ -517,6 +659,7 @@
             font-weight: 700;
             color: white;
             flex: 0 0 auto;
+            margin-left: 0;
         }
 
         /* if an image is present, we hide the text abbreviation */
@@ -791,19 +934,27 @@
                 <div class="legend">
                     <div class="legend-item">
                         <div class="legend-color online"></div>
-                        <span>آنلاین (سریع)</span>
+                        <span>عالی (&lt;200ms)</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color good"></div>
-                        <span>آنلاین (معمولی)</span>
+                        <span>خوب (200-300ms)</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color degraded"></div>
-                        <span>کند (بیش از ۵۰۰ms)</span>
+                        <div class="legend-color medium"></div>
+                        <span>متوسط (300-500ms)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color slow"></div>
+                        <span>کند (500-1000ms)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color very-slow"></div>
+                        <span>خیلی کند (&gt;1000ms)</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color offline"></div>
-                        <span>آفلاین</span>
+                        <span>قطع / خطا</span>
                     </div>
                 </div>
             </div>
@@ -839,6 +990,7 @@
         let allServices = new Set();
         let serviceConfigs = {}; // Store service configs for icon access
         let selectedServices = new Set();
+        let isFilterInitialized = false; // Track if filter has been initialized
         let dcFilter = 'all';
         let timeHours = 1;
 
@@ -919,16 +1071,35 @@
         }
 
         function getStatusColor(status, latency) {
-            if (status === 'offline') return 'offline';
-            if (status === 'degraded' || latency > 500) return 'degraded';
-            if (latency > 200) return 'good';
-            return 'online';
+            if (status === 'offline' || status === 'error') return 'offline';
+            if (!latency || latency === 0) return 'offline';
+            if (latency < 200) return 'online';      // عالی
+            if (latency < 300) return 'good';        // خوب
+            if (latency < 500) return 'medium';      // متوسط
+            if (latency < 1000) return 'slow';       // کند
+            return 'very-slow';                       // خیلی کند
+        }
+
+        function getStatusText(status, latency) {
+            if (status === 'offline' || status === 'error') return 'قطع / خطا';
+            if (!latency || latency === 0) return 'قطع / خطا';
+            if (latency < 200) return 'عالی';
+            if (latency < 300) return 'خوب';
+            if (latency < 500) return 'متوسط';
+            if (latency < 1000) return 'کند';
+            return 'خیلی کند';
         }
 
         function formatTime(iso) {
             if (!iso) return '-';
             const d = new Date(iso);
             return d.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatTimeOnly(iso) {
+            if (!iso) return '-';
+            const d = new Date(iso);
+            return d.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
 
         function formatLatency(ms) {
@@ -954,10 +1125,16 @@
             const container = document.getElementById('service-filter');
             const services = Array.from(allServices).sort();
             
+            // Initialize selectedServices with all services ONLY on very first load
+            if (!isFilterInitialized) {
+                services.forEach(s => selectedServices.add(s));
+                isFilterInitialized = true;
+            }
+            
             container.innerHTML = services.map(name => {
                 const color = getServiceColor(name);
                 const abbr = getServiceAbbr(name);
-                const checked = selectedServices.size === 0 || selectedServices.has(name);
+                const checked = selectedServices.has(name);
                 // Use config.icon from serviceConfigs, fallback to getIconForService
                 const config = serviceConfigs[name] || {};
                 const icon = config.icon || getIconForService(name);
@@ -974,6 +1151,7 @@
                 `;
             }).join('');
 
+            // Event listeners for checkboxes
             container.querySelectorAll('input').forEach(input => {
                 input.addEventListener('change', () => {
                     if (input.checked) {
@@ -981,16 +1159,17 @@
                     } else {
                         selectedServices.delete(input.value);
                     }
-                    // If all unchecked, show all
-                    if (selectedServices.size === 0) {
-                        container.querySelectorAll('input').forEach(i => i.checked = true);
-                    }
+                    
+                    // Force full rebuild when filter changes
+                    isFirstRender = true;
                     renderServers();
                 });
             });
         }
 
         // Render servers
+        let isFirstRender = true;
+        
         function renderServers() {
             const container = document.getElementById('servers-container');
             
@@ -1003,16 +1182,24 @@
 
             if (filtered.length === 0) {
                 container.innerHTML = '<div class="loading"><span>هیچ سروری یافت نشد</span></div>';
+                isFirstRender = true;
                 return;
             }
 
-            container.innerHTML = filtered.map(([agentName, info]) => {
+            // If not first render, try to update only timeline segments
+            if (!isFirstRender) {
+                updateTimelinesOnly(filtered);
+                return;
+            }
+
+            // First render - build full HTML
+            const newHTML = filtered.map(([agentName, info]) => {
                 const flag = getAgentFlag(agentName);
                 const targets = Object.entries(info.targets);
                 
-                // Filter services
+                // Filter services - only show selected ones
                 const filteredTargets = targets.filter(([name, _]) => {
-                    return selectedServices.size === 0 || selectedServices.has(name);
+                    return selectedServices.has(name);
                 });
 
                 // Check overall status: consider a service 'current' only if its latest timestamp is recent (e.g., 2 minutes)
@@ -1057,38 +1244,43 @@
                                 const icon = config.icon || getIconForService(name);
                                 const imgHtml = icon ? `<img class="service-icon" src="/static/icons/${icon}" alt="${name}" onload="this.nextElementSibling.classList.add('hidden')" onerror="this.style.display='none'">` : '';
 
-                                // Build timeline - segments based on time range
-                                // Calculate segment count: 1h=60 (one per minute), 3h/6h/12h/24h=180 (sampled)
-                                const segmentCount = timeHours <= 1 ? 60 : 180;
-                                const segments = [];
+                                // Use shared function to build timeline segments
+                                const timelineId = `timeline-${agentName}-${name}`.replace(/[^a-zA-Z0-9-]/g, '_');
+                                const segments = buildTimelineSegments(history, name);
                                 
-                                // Calculate how many history items per segment for sampling
-                                const totalMinutes = timeHours * 60;
-                                const minutesPerSegment = totalMinutes / segmentCount;
+                                // Calculate average latency for this service
+                                const validLatencies = history.filter(h => h && h.latency_ms > 0).map(h => h.latency_ms);
+                                const avgLatency = validLatencies.length > 0 
+                                    ? Math.round(validLatencies.reduce((a, b) => a + b, 0) / validLatencies.length)
+                                    : 0;
+                                const avgLatencyText = avgLatency > 0 ? `${avgLatency}ms` : '-';
+                                const avgStatus = avgLatency > 0 ? getStatusText('online', avgLatency) : '-';
                                 
-                                // Build from oldest to newest, then reverse for RTL (newest on right)
-                                for (let i = 0; i < segmentCount; i++) {
-                                    // Calculate which history index to sample
-                                    const targetMinuteFromEnd = Math.floor((segmentCount - i) * minutesPerSegment);
-                                    const idx = history.length - targetMinuteFromEnd;
-                                    const h = idx >= 0 && idx < history.length ? history[idx] : null;
-                                    
-                                    if (h) {
-                                        const colorClass = getStatusColor(h.status, h.latency_ms);
-                                        const tooltipText = `${formatTimestamp(h.timestamp)} | ${formatLatency(h.latency_ms)}`;
-                                        segments.push(`<div class="timeline-segment ${colorClass}" title="${tooltipText}" style="flex:1;min-width:${Math.max(2, Math.floor(180/segmentCount))}px;"></div>`);
-                                    } else {
-                                        segments.push(`<div class="timeline-segment empty" style="flex:1;min-width:${Math.max(2, Math.floor(180/segmentCount))}px;"></div>`);
-                                    }
-                                }
+                                // Build service tooltip content
+                                const serviceTooltip = `
+                                    <div class="service-tooltip">
+                                        <div class="tooltip-header">${name}</div>
+                                        <div class="tooltip-row">
+                                            <span class="tooltip-label">نوع بررسی:</span>
+                                            <span class="tooltip-value">${type}</span>
+                                        </div>
+                                        <div class="tooltip-row">
+                                            <span class="tooltip-label">متوسط تاخیر (${timeHours}h):</span>
+                                            <span class="tooltip-value">${avgLatencyText} (${avgStatus})</span>
+                                        </div>
+                                    </div>
+                                `;
 
                                 return `
-                                    <div class="service-row" onclick="showHistory('${agentName}', '${encodeURIComponent(name)}')">
+                                    <div class="service-row">
+                                        <span class="name" onclick="showHistory('${agentName}', '${encodeURIComponent(name)}')">
+                                            <span class="name-text">${name}</span>
+                                            ${serviceTooltip}
+                                        </span>
                                         ${imgHtml}
                                         <span class="abbr" style="background:${color}">${abbr}</span>
-                                        <span class="name">${name}</span>
-                                        <div class="timeline">${segments.join('')}</div>
                                         <span class="type">${type}</span>
+                                        <div class="timeline" id="${timelineId}">${segments}</div>
                                     </div>
                                 `;
                             }).join('')}
@@ -1096,12 +1288,116 @@
                     </div>
                 `;
             }).join('');
+            
+            container.innerHTML = newHTML;
+            isFirstRender = false;
+        }
+        
+        // Update only timeline segments without rebuilding entire DOM
+        function updateTimelinesOnly(filtered) {
+            filtered.forEach(([agentName, info]) => {
+                const filteredTargets = Object.entries(info.targets).filter(([name, _]) => {
+                    return selectedServices.has(name);
+                });
+                
+                filteredTargets.forEach(([name, data]) => {
+                    const history = data.history || [];
+                    const timelineId = `timeline-${agentName}-${name}`.replace(/[^a-zA-Z0-9-]/g, '_');
+                    const timelineEl = document.getElementById(timelineId);
+                    
+                    if (timelineEl) {
+                        const segments = buildTimelineSegments(history, name);
+                        timelineEl.innerHTML = segments;
+                    }
+                });
+            });
+        }
+        
+        // Build timeline segments HTML
+        function buildTimelineSegments(history, serviceName = '') {
+            const segmentCount = timeHours <= 1 ? 60 : 180;
+            const segments = [];
+            
+            // For 1 hour: show last 60 data points directly without time bucketing
+            if (timeHours <= 1) {
+                // Take the last 60 items (newest data)
+                const recentHistory = history.slice(-60);
+                
+                // Fill empty segments if less than 60 items
+                const emptyCount = 60 - recentHistory.length;
+                for (let i = 0; i < emptyCount; i++) {
+                    segments.push(`<div class="timeline-segment empty" style="flex:1;min-width:2px;"></div>`);
+                }
+                
+                // Add actual data segments
+                recentHistory.forEach(h => {
+                    const colorClass = getStatusColor(h.status, h.latency_ms);
+                    const statusText = getStatusText(h.status, h.latency_ms);
+                    const timeOnly = formatTimeOnly(h.timestamp);
+                    const latencyText = formatLatency(h.latency_ms);
+                    
+                    segments.push(`<div class="timeline-segment ${colorClass}" style="flex:1;min-width:2px;">
+                        <div class="tooltip">
+                            <div class="tooltip-service">${serviceName}</div>
+                            <div class="tooltip-time">${timeOnly}</div>
+                            <div class="tooltip-divider"></div>
+                            <div class="tooltip-status">
+                                <span class="status-text ${colorClass}">${statusText}</span>
+                                <span class="latency">${latencyText}</span>
+                            </div>
+                        </div>
+                    </div>`);
+                });
+                
+                return segments.join('');
+            }
+            
+            // For longer time ranges: use time-based bucketing with sampling
+            const now = Date.now();
+            const timeRangeMs = timeHours * 60 * 60 * 1000;
+            const startTime = now - timeRangeMs;
+            const segmentDurationMs = timeRangeMs / segmentCount;
+            
+            for (let i = 0; i < segmentCount; i++) {
+                const segmentStartTime = startTime + (i * segmentDurationMs);
+                const segmentEndTime = segmentStartTime + segmentDurationMs;
+                
+                const segmentData = history.filter(h => {
+                    if (!h || !h.timestamp) return false;
+                    const ts = new Date(h.timestamp).getTime();
+                    return ts >= segmentStartTime && ts < segmentEndTime;
+                });
+                
+                if (segmentData.length > 0) {
+                    const h = segmentData[segmentData.length - 1];
+                    const colorClass = getStatusColor(h.status, h.latency_ms);
+                    const statusText = getStatusText(h.status, h.latency_ms);
+                    const timeOnly = formatTimeOnly(h.timestamp);
+                    const latencyText = formatLatency(h.latency_ms);
+                    
+                    segments.push(`<div class="timeline-segment ${colorClass}" style="flex:1;min-width:${Math.max(2, Math.floor(180/segmentCount))}px;">
+                        <div class="tooltip">
+                            <div class="tooltip-service">${serviceName}</div>
+                            <div class="tooltip-time">${timeOnly}</div>
+                            <div class="tooltip-divider"></div>
+                            <div class="tooltip-status">
+                                <span class="status-text ${colorClass}">${statusText}</span>
+                                <span class="latency">${latencyText}</span>
+                            </div>
+                        </div>
+                    </div>`);
+                } else {
+                    segments.push(`<div class="timeline-segment empty" style="flex:1;min-width:${Math.max(2, Math.floor(180/segmentCount))}px;"></div>`);
+                }
+            }
+            
+            return segments.join('');
         }
 
         // Fetch status
         async function fetchStatus() {
             try {
-                const res = await fetch('/api/status');
+                const res = await fetch(`/api/status?hours=${timeHours}`);
                 const data = await res.json();
 
                 const targets = data.targets || {};
@@ -1227,37 +1523,36 @@
                 document.querySelectorAll('.header-dc-tab').forEach(t => t.classList.remove('active'));
                 e.target.classList.add('active');
                 dcFilter = e.target.dataset.filter;
+                isFirstRender = true; // Force full re-render when filter changes
                 renderServers();
             }
         });
 
         document.getElementById('header-time-filter').addEventListener('change', (e) => {
             timeHours = parseInt(e.target.value);
-            renderServers(); // Re-render with new segment count
+            isFirstRender = true; // Force full re-render when time range changes
+            fetchStatus(); // Fetch new data with correct time range
         });
 
         // Select all / Deselect all buttons
         document.getElementById('select-all').addEventListener('click', () => {
-            const inputs = document.querySelectorAll('#service-filter input');
-            inputs.forEach(i => {
-                i.checked = true;
-                selectedServices.add(i.value);
-            });
+            selectedServices.clear();
+            allServices.forEach(s => selectedServices.add(s));
+            buildServiceFilter();
+            isFirstRender = true;
             renderServers();
         });
 
         document.getElementById('deselect-all').addEventListener('click', () => {
-            const inputs = document.querySelectorAll('#service-filter input');
-            inputs.forEach(i => {
-                i.checked = false;
-            });
             selectedServices.clear();
+            buildServiceFilter();
+            isFirstRender = true;
             renderServers();
         });
 
         // Init
         fetchStatus();
-        setInterval(fetchStatus, 5000);
+        setInterval(fetchStatus, 30000);
     </script>
 </body>
 </html>
