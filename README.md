@@ -7,7 +7,7 @@
 ![Dashboard Preview](https://img.shields.io/badge/Status-Active-green) ![License](https://img.shields.io/badge/License-MIT-blue) ![Python](https://img.shields.io/badge/Python-3.8+-yellow)
 
 ---
-
+![GIF](https://github.com/akmfad1/network-radar/blob/main/GIF.gif)
 ## ✨ ویژگی‌ها
 
 - 🔴🟡🟢 **نمایش وضعیت لحظه‌ای** - آنلاین، کند، آفلاین
